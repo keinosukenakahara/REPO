@@ -698,20 +698,27 @@ console.log(calendarData.slice(0,10));
             if(!dayData) return;
 
 
-            const remain =
-            document.createElement("span");
+            // 休店日
+            if (dayData.open != "営業") {
 
+                dayElem.classList.add("closed-day");
 
-            remain.className =
-            "remain";
+                // 残席は表示しない
+                return;
+            }
 
+            // 満席
+            if (Number(dayData.remain) <= 0) {
 
-            remain.textContent =
-            `残${dayData.remain}席`;
+                dayElem.classList.add("full-day");
+            }
 
+            const remain = document.createElement("span");
+
+            remain.className = "remain";
+            remain.textContent = `残${dayData.remain}席`;
 
             dayElem.appendChild(remain);
-
         }
     });
 
