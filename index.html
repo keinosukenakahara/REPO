@@ -65,16 +65,18 @@ img {
     margin: 5px 0;
 }
 
-/* 予約ボタン */
-.reserve-btn {
-    display: inline-block;
-    padding: 16px 30px;
-    background: #e60033;
-    color: #fff;
-    border-radius: 30px;
-    text-decoration: none;
-    font-size: 16px;
-}
+<!-- 
+    /* 予約ボタン */
+    .reserve-btn {
+        display: inline-block;
+        padding: 16px 30px;
+        background: #e60033;
+        color: #fff;
+        border-radius: 30px;
+        text-decoration: none;
+        font-size: 16px;
+    }
+-->
 
 /* 残席 */
 .seat-info {
@@ -109,17 +111,19 @@ img {
     z-index: 9999;
 }
 
-/* 電話ボタン */
-.tel-btn {
-    display: block;
-    margin-top: 10px;
-    text-align: center;
-    padding: 14px;
-    background: #333;
-    color: #fff;
-    border-radius: 30px;
-    text-decoration: none;
-}
+<!--
+    /* 電話ボタン */
+    .tel-btn {
+        display: block;
+        margin-top: 10px;
+        text-align: center;
+        padding: 14px;
+        background: #333;
+        color: #fff;
+        border-radius: 30px;
+        text-decoration: none;
+    }
+ -->
 
 /* モーダル */
 .modal {
@@ -201,6 +205,20 @@ form button{
     border:1px solid #999;
 }
 
+
+/* 残席表示 */
+
+.remain{
+
+    display:block;
+    font-size:10px;
+    color:#c0392b;
+    line-height:1;
+    margin-top:2px;
+
+}
+
+
 /* 選択不可 */
 
 .flatpickr-day.disabled{
@@ -273,13 +291,18 @@ width="100%" height="250"></iframe>
 </p>
 
 <div style="text-align:center;">
-<a href="#" onclick="openReservation()" class="reserve-btn">
-ご予約はこちら
+<!-- 
+    <a href="#" onclick="openReservation()" class="reserve-btn">
+    ご予約はこちら
 </a>
+ -->
 
-<a href="tel:09012345678" class="tel-btn">
-📞 電話予約する
-</a>
+<!--
+    <a href="tel:09012345678" class="tel-btn">
+    📞 電話予約する
+    </a>
+-->
+
 </div>
 
 </section>
@@ -330,10 +353,11 @@ name="name"
 placeholder="お名前"
 required>
 
-<input type="email"
-name="email"
-placeholder="メールアドレス"
-required>
+<input
+    type="tel"
+    name="phone"
+    placeholder="電話番号"
+    required>
 
 <select name="people" required>
 
@@ -422,6 +446,7 @@ style="border:none; margin-top:15px;">
 予約送信
 </button>
 
+
 </form>
 
 <p style="font-size:13px; color:#666; margin-top:15px;">
@@ -459,7 +484,10 @@ style="border:none; margin-top:15px;">
 <script>
 
 const API_URL =
-"https://script.google.com/macros/s/AKfycbxMcX4qUGI2SLx7jIYsW1anY2K7wSgqr3DayOnhmj8CMIT0IbE7cyo22NQBQEha84Y/exec";
+"https://script.google.com/macros/s/AKfycbzExyJxMiW15A4s2A_Vm5nuvQwlEmZv-g1RDU_eTxFBfxlYiajNp_x795_hCbogWcY/exec";
+ 
+
+const POST_URL = API_URL;
 
 let calendarData = [];
 
@@ -471,12 +499,12 @@ const title = document.getElementById("menu-title");
 const detail = document.getElementById("menu-detail");
 
 const data = {
-food01: {title:"おばんざい",detail:"季節食材",price:"1280円"},
-food02: {title:"魚料理",detail:"旬の魚",price:"680円"},
-food03: {title:"肉料理",detail:"名産肉",price:"980円"},
+food01: {title:"おばんざい",detail:"季節食材",price:"350円"},
+food02: {title:"魚料理",detail:"旬の魚",price:"680円～"},
+food03: {title:"肉料理",detail:"名産肉",price:"980円～"},
 sake: {title:"日本酒",detail:"地酒",price:"600円〜"},
-whisky: {title:"ウイスキー",detail:"国産中心",price:"700円〜"},
-beer: {title:"生ビール",detail:"キリン",price:"550円"}
+whisky: {title:"ウイスキー",detail:"海外　国産",price:"700円〜"},
+beer: {title:"瓶ビール",detail:"キリン　アサヒ　サッポロ",price:"700円"}
 };
 
 document.querySelectorAll(".menu-item img").forEach(img=>{
@@ -490,7 +518,7 @@ modal.style.display="block";
 
 
 async function loadCalendar(){
-
+ 
     try{
 
         const response =
@@ -500,6 +528,12 @@ async function loadCalendar(){
         await response.json();
 
         console.log(calendarData);
+
+// ★追加
+console.table(calendarData);
+
+
+
 
     }catch(error){
 
@@ -511,9 +545,57 @@ async function loadCalendar(){
 
 }
 
+
+
+function showTodayRemain(){
+
+    const today = new Date();
+
+    const yyyy = today.getFullYear();
+
+    const mm = String(today.getMonth()+1).padStart(2,"0");
+
+    const dd = String(today.getDate()).padStart(2,"0");
+
+    const todayStr = `${yyyy}-${mm}-${dd}`;
+
+    const dayData = calendarData.find(d => d.date === todayStr);
+
+
+
+// ★追加
+console.log(
+    "todayStr:",
+    todayStr,
+    "dayData:",
+    dayData
+);
+
+
+
+    if(dayData){
+
+        document.getElementById("seats").textContent =
+        dayData.remain;
+
+    }else{
+
+        document.getElementById("seats").textContent =
+        "-";
+
+    }
+
+}
+
+
 window.addEventListener("load", async ()=>{
 
     await loadCalendar();
+
+console.log(calendarData);
+console.log(calendarData.slice(0,10));
+    
+    showTodayRemain();
 
     /* Flatpickr生成 */
 
@@ -535,6 +617,15 @@ window.addEventListener("load", async ()=>{
 
         onDayCreate: function(dObj, dStr, fp, dayElem){
 
+            // 以前の残席表示を削除
+            const oldRemain =
+            dayElem.querySelector(".remain");
+
+            if(oldRemain){
+                oldRemain.remove();
+            }
+
+
             const date =
             dayElem.dateObj;
 
@@ -553,46 +644,53 @@ window.addEventListener("load", async ()=>{
             `${yyyy}-${mm}-${dd}`;
 
             const dayData =
-            calendarData.find(d => {
+            calendarData.find(d => d.date === formatted);
 
-                const sheet =
-                new Date(d.date);
 
-                const sy =
-                sheet.getFullYear();
+console.log(
+    "formatted =",
+    formatted,
+    "remain =",
+    dayData ? dayData.remain : "なし"
+);
 
-                const sm =
-                String(sheet.getMonth()+1)
-                .padStart(2,"0");
 
-                const sd =
-                String(sheet.getDate())
-                .padStart(2,"0");
 
-                return `${sy}-${sm}-${sd}`
-                === formatted;
 
-            });
-
+ 
             if(!dayData) return;
+
+                const remain =
+                document.createElement("span");
+
+                remain.className = "remain";
+
+                remain.textContent =
+                `残${dayData.remain}`;
+
+                dayElem.appendChild(remain);
 
             /* 休業日 */
 
-            if(dayData.open == false){
 
-                dayElem.classList
-                .add("closed-day");
+            /* 残席表示 */
+
+            /* 休業日 */
+
+            if(dayData.open != "営業"){
+
+                dayElem.classList.add("closed-day");
 
             }
 
             /* 満席 */
 
-            if(dayData.status == "full"){
+            if(Number(dayData.remain) <= 0){
 
-                dayElem.classList
-                .add("full-day");
+                dayElem.classList.add("full-day");
 
             }
+            
 
         }
 
@@ -681,30 +779,9 @@ reservationDate.addEventListener("change", function(){
     console.log("calendarData", calendarData);
 
     const dayData =
+    calendarData.find(d => d.date === selectedDate);
 
-    calendarData.find(d => {
-
-    const sheetDate =
-    new Date(d.date);
-
-    const yyyy =
-    sheetDate.getFullYear();
-
-    const mm =
-    String(sheetDate.getMonth()+1)
-    .padStart(2,"0");
-
-    const dd =
-    String(sheetDate.getDate())
-    .padStart(2,"0");
-
-    const formatted =
-    `${yyyy}-${mm}-${dd}`;
-
-    return formatted === selectedDate;
-
-    });
-
+ 
     console.log("dayData", dayData);
 
     if(!dayData){
@@ -718,18 +795,20 @@ reservationDate.addEventListener("change", function(){
 
     /* 店休日 */
 
-    if(dayData.open == false){
+    if(dayData.open != "営業"){
 
         alert("休業日です");
 
         this.value = "";
 
         return;
+
     }
+
 
     /* 満席 */
 
-    if(dayData.status == "full"){
+    if(Number(dayData.remain) <= 0){
 
         alert("満席です");
 
@@ -737,6 +816,11 @@ reservationDate.addEventListener("change", function(){
 
         return;
     }
+
+    /* 残席表示 */
+
+    document.getElementById("seats").textContent =
+    dayData.remain;
 
     /* 営業時間生成 */
 
@@ -773,24 +857,26 @@ today.toISOString().split("T")[0];
 document.querySelector("form")
 .addEventListener("submit",function(e){
 
-const date =
-document.getElementById("reservationDate").value;
+    e.preventDefault();
 
-const start =
-document.getElementById("startHour").value;
+    const date =
+    document.getElementById("reservationDate").value;
 
-const end =
-document.getElementById("endHour").value;
+    const start =
+    document.getElementById("startHour").value;
 
-/* 未選択 */
+    const end =
+    document.getElementById("endHour").value;
 
-if(!date || !start || !end){
+    /* 未選択 */
 
-alert("予約日時を選択してください");
+    if(!date || !start || !end){
 
-e.preventDefault();
+    alert("予約日時を選択してください");
 
-return;
+    e.preventDefault();
+
+    return;
 
 }
 
@@ -816,7 +902,70 @@ document.getElementById("datetime").value =
 const selected = new Date(date);
 
 
+
+
+const formData = new FormData();
+
+formData.append("date", date);
+
+formData.append(
+    "name",
+    document.querySelector("[name='name']").value
+);
+
+formData.append(
+    "phone",
+    document.querySelector("[name='phone']").value
+);
+
+formData.append(
+    "people",
+    parseInt(
+        document.querySelector("[name='people']").value
+    ) || 1
+);
+
+formData.append(
+    "message",
+    document.querySelector("[name='message']").value
+);
+
+fetch(POST_URL,{
+    method:"POST",
+    body:formData
+})
+.then(res=>res.json())
+.then(data=>{
+
+    console.log(data);
+
+    if(data.result === "success"){
+
+        window.location.href = "thanks.html";
+
+    }else{
+
+        alert("予約保存に失敗しました。\n" + data.message);
+
+    }
+
+})
+.catch(err=>{
+
+    console.error(err);
+
+    alert("通信エラーが発生しました。");
+
 });
+
+});   // ← submitイベント終了
+
+
+
+
+
+
+
 
 
 
