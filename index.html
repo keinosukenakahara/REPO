@@ -185,9 +185,38 @@ form button{
     cursor:pointer;
 }
 
-form button{
-    cursor:pointer;
+
+/* カレンダーセル調整 */
+
+.flatpickr-day{
+
+    height:48px;
+
+    line-height:32px;
+
 }
+
+/* 今日の丸位置調整 */
+.flatpickr-calendar .flatpickr-day.today{
+
+    transform: translateY(0px);
+
+}
+
+
+/* 残席表示 */
+
+.remain{
+
+    display:block;
+    font-size:10px;
+    color:#c0392b;
+    line-height:10px;
+    margin-top:-8px;
+    font-weight:bold;
+}
+
+
 
 /* 定休日 */
 
@@ -211,10 +240,11 @@ form button{
 .remain{
 
     display:block;
-    font-size:10px;
+    font-size:12px;
     color:#c0392b;
-    line-height:1;
-    margin-top:2px;
+    line-height:12px;
+    margin-top:-8px;
+    font-weight:bold;
 
 }
 
@@ -224,6 +254,7 @@ form button{
 .flatpickr-day.disabled{
     opacity:0.4;
 }
+
 
 </style>
 
@@ -557,10 +588,11 @@ function showTodayRemain(){
 
     const dd = String(today.getDate()).padStart(2,"0");
 
+    <!--
     const todayStr = `${yyyy}-${mm}-${dd}`;
 
     const dayData = calendarData.find(d => d.date === todayStr);
-
+     -->
 
 
 // ★追加
@@ -617,83 +649,70 @@ console.log(calendarData.slice(0,10));
 
         onDayCreate: function(dObj, dStr, fp, dayElem){
 
-            // 以前の残席表示を削除
-            const oldRemain =
+            // 既存の残席表示を完全削除
+            const old =
             dayElem.querySelector(".remain");
 
-            if(oldRemain){
-                oldRemain.remove();
+            if(old){
+                old.remove();
             }
-
 
             const date =
             dayElem.dateObj;
 
-            const yyyy =
-            date.getFullYear();
-
-            const mm =
-            String(date.getMonth()+1)
-            .padStart(2,"0");
-
-            const dd =
-            String(date.getDate())
-            .padStart(2,"0");
 
             const formatted =
-            `${yyyy}-${mm}-${dd}`;
+            `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+
+
+            // ★追加：過去日は残席表示しない
+            const today = new Date();
+
+            today.setHours(0,0,0,0);
+
+
+            if(date < today){
+
+                return;
+
+            }
+
+
+
+
 
             const dayData =
-            calendarData.find(d => d.date === formatted);
+            calendarData.find(
+                d => d.date === formatted
+            );
 
 
-console.log(
-    "formatted =",
-    formatted,
-    "remain =",
-    dayData ? dayData.remain : "なし"
-);
+            console.log(
+                "表示日=",
+                formatted,
+                "残席=",
+                dayData ? dayData.remain : "なし"
+            );
 
 
-
-
- 
             if(!dayData) return;
 
-                const remain =
-                document.createElement("span");
 
-                remain.className = "remain";
-
-                remain.textContent =
-                `残${dayData.remain}`;
-
-                dayElem.appendChild(remain);
-
-            /* 休業日 */
+            const remain =
+            document.createElement("span");
 
 
-            /* 残席表示 */
+            remain.className =
+            "remain";
 
-            /* 休業日 */
 
-            if(dayData.open != "営業"){
+            remain.textContent =
+            `残${dayData.remain}席`;
 
-                dayElem.classList.add("closed-day");
 
-            }
-
-            /* 満席 */
-
-            if(Number(dayData.remain) <= 0){
-
-                dayElem.classList.add("full-day");
-
-            }
-            
+            dayElem.appendChild(remain);
 
         }
-
     });
 
 });
