@@ -249,6 +249,38 @@ form button{
     opacity:0.4;
 }
 
+/* セクションタイトル CSS定義*/
+h2{
+    display:flex;
+    align-items:center;
+    gap:40px;
+}
+
+.menu-message{
+    font-size:inherit;     /* h2と同じ大きさ */
+    font-weight:inherit;   /* h2と同じ太さ */
+    color:inherit;         /* h2と同じ文字色 */
+}
+
+h1 {
+    text-align: center;
+}
+
+h1 span {
+    display: block;
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+.reservation-title {
+    text-align: center;
+}
+
+.reservation-title span {
+    display: block;
+    font-size: 16px;
+    margin-top: 10px;
+}
 
 </style>
 
@@ -288,7 +320,7 @@ defer>
 <h2>店舗情報</h2>
 <p>神戸市兵庫区福原町14-1　新開地ロックビル１階</p>
 <p>19:00〜24:00（日曜定休）</p>
-<p>カウンター10席</p>
+<p>カウンター5席</p>
 
 <iframe
     src="https://www.google.com/maps?q=神戸市兵庫区福原町14-1&output=embed"
@@ -299,8 +331,14 @@ defer>
 </iframe>
 </section>
 
-<section>
-<h2>お品書き</h2>
+<h2>
+    お品書き
+    <span class="menu-message">当店はお席料 1000円（付出し3品付）頂戴しております</span>
+</h2>
+
+
+
+
 <div class="menu">
 <div class="menu-item"><img src="img/food01.jpg" id="food01"><p>季節のおばんざい</p></div>
 <div class="menu-item"><img src="img/food02.jpg" id="food02"><p>旬の魚料理</p></div>
@@ -350,7 +388,11 @@ defer>
 
 <span id="reservationClose">&times;</span>
 
-<h2>WEB予約</h2>
+
+<h1 class="reservation-title">
+    WEB予約
+    <span>当店はお席料 1000円（付出し3品付）頂戴しております</span>
+</h1>
 
 <form
 action="https://api.web3forms.com/submit"
