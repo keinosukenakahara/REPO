@@ -278,9 +278,114 @@ h1 span {
 
 .reservation-title span {
     display: block;
-    font-size: 16px;
-    margin-top: 10px;
+    font-size: 13px;
+    margin-top: 5px;
 }
+
+/* 予約送信/戻るボタン */
+.button-area{
+    display:flex;
+    gap:10px;
+    margin-top:20px;
+}
+
+.button-area button{
+    flex:1;
+    height:55px;
+    font-size:18px;
+    border-radius:8px;
+}
+
+#cancelBtn{
+    background:#666;
+    color:#fff;
+}
+
+#cancelBtn:hover{
+    background:#555;
+}
+
+
+#reservationCancelBtn{
+    width:100%;
+    height:55px;
+    margin-top:15px;
+    background:#8b0000;
+    color:#fff;
+    font-size:18px;
+    border-radius:8px;
+}
+
+#reservationCancelBtn:hover{
+    background:#660000;
+}
+
+
+#cancelModal h2{
+    text-align:center;
+}
+
+#cancelModal label{
+    font-size: 18px;    
+}
+
+#cancelModal .modal-content{
+
+    width:90%;
+    max-width:450px;
+
+}
+
+/* 予約キャンセル入力欄 */
+
+.cancel-row{
+    display:flex;
+    align-items:center;
+    margin-top:20px;
+}
+
+
+.cancel-row label{
+
+    width:90px;
+    font-size:20px;
+    font-weight:bold;
+
+}
+
+
+.cancel-row input{
+
+    flex:1;
+    height:55px;
+    font-size:20px;
+    padding:8px;
+
+    box-sizing:border-box;
+
+}
+
+#sendCancel{
+    width:100%;
+    height:55px;
+    background:#8b0000;
+    color:#fff;
+    font-size:18px;
+    border-radius:8px;
+}
+
+#closeCanCelModal{
+    background:#666;
+    color:#fff;
+}
+
+#cancelModal .modal-content h2{
+    display:block;
+    text-align:center;
+    font-size:26px;
+    margin:0 0 20px 0;
+}
+
 
 </style>
 
@@ -387,11 +492,11 @@ defer>
 
 
 <h1 class="reservation-title">
-    WEB予約
+    WEB予約・ご予約キャンセル
     <span>当店はお席料 1000円（付出し3品付）頂戴しております</span>
 </h1>
 
-<form
+<form id="reservationForm"
 action="https://api.web3forms.com/submit"
 method="POST">
 
@@ -471,25 +576,6 @@ required>
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <!--  hidden  -->
 
 <input type="hidden"
@@ -517,10 +603,21 @@ class="cf-turnstile"
 data-sitekey="0x4AAAAAAD_YzgMFIDNcRCS3">
 </div>
 
+<!--
 <button type="submit"
 class="reserve-btn"
 style="border:none; margin-top:15px;">
 予約送信
+</button>
+-->
+
+<div class="button-area">
+    <button type="button" id="cancelBtn">戻る</button>
+    <button type="submit">予約送信</button>
+</div>
+
+<button type="button" id="reservationCancelBtn">
+    ご予約キャンセル
 </button>
 
 
@@ -547,7 +644,7 @@ style="border:none; margin-top:15px;">
 </footer>
 
 <a href="#" onclick="openReservation()" class="fixed-reserve">
-📅 今すぐ予約
+📅 今すぐ予約・ご予約キャンセル
 </a>
 
 <div id="modal" class="modal">
@@ -557,6 +654,53 @@ style="border:none; margin-top:15px;">
 <p id="menu-detail"></p>
 </div>
 </div>
+
+
+
+<!-- 予約キャンセルモーダル  -->
+
+<div id="cancelModal" class="modal">
+
+<div class="modal-content">
+
+<h2>ご予約キャンセル</h2>
+
+<div class="cancel-row">
+<label>名前</label>
+<input type="text" id="cancelName">
+</div>
+
+<div class="cancel-row">
+<label>電話</label>
+<input type="tel" id="cancelPhone">
+</div>
+
+<div class="cancel-row">
+<label>メール</label>
+<input type="email" id="cancelEmail">
+</div>
+
+<div class="cancel-row">
+<label>予約日</label>
+<input type="date" id="cancelDate">
+</div>
+
+
+<div class="button-area">
+
+<button type="button" id="closeCancelModal">
+戻る
+</button>
+
+<button type="button" id="sendCancel">
+キャンセル送信
+</button>
+
+</div>
+
+</div>
+</div>
+
 
 <script>
 
@@ -660,106 +804,100 @@ function showTodayRemain(){
 
 }
 
+let fp;   // ← グローバル
 
 window.addEventListener("load", async ()=>{
 
     await loadCalendar();
-
-console.log(calendarData);
-console.log(calendarData.slice(0,10));
-    
+  
     showTodayRemain();
 
     /* Flatpickr生成 */
 
-    flatpickr("#reservationDate", {
+    fp = flatpickr("#reservationDate", {
 
-        dateFormat: "Y-m-d",
+    dateFormat: "Y-m-d",
 
-        minDate: "today",
+    minDate: "today",
 
-        disable: [
+    disable: [
 
-            function(date){
+        function(date){
 
-                return false;
+            return false;
 
-            }
+        }
 
-        ],
+    ],
 
-        onDayCreate: function(dObj, dStr, fp, dayElem){
+    onDayCreate: function(dObj, dStr, fp, dayElem){
 
-            // 既存の残席表示を完全削除
-            const old =
-            dayElem.querySelector(".remain");
+        // 既存の残席表示を完全削除
+        const old =
+        dayElem.querySelector(".remain");
 
-            if(old){
-                old.remove();
-            }
+        if(old){
+            old.remove();
+        }
 
-            const date =
-            dayElem.dateObj;
-
-
-            const formatted =
-            `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+        const date =
+        dayElem.dateObj;
 
 
-            // ★追加：過去日は残席表示しない
-            const today = new Date();
-
-            today.setHours(0,0,0,0);
+        const formatted =
+        `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
 
 
-            if(date < today){
+        // ★追加：過去日は残席表示しない
+        const today = new Date();
 
-                return;
-
-            }
-
+        today.setHours(0,0,0,0);
 
 
+        if(date < today){
+
+            return;
+
+        }
+
+        const dayData =
+        calendarData.find(
+            d => d.date === formatted
+        );
 
 
-            const dayData =
-            calendarData.find(
-                d => d.date === formatted
-            );
+        console.log(
+            "表示日=",
+            formatted,
+            "残席=",
+            dayData ? dayData.remain : "なし"
+        );
 
 
-            console.log(
-                "表示日=",
-                formatted,
-                "残席=",
-                dayData ? dayData.remain : "なし"
-            );
+        if(!dayData) return;
 
 
-            if(!dayData) return;
+        // 休店日
+        if (dayData.open != "営業") {
 
+            dayElem.classList.add("closed-day");
 
-            // 休店日
-            if (dayData.open != "営業") {
+            // 残席は表示しない
+            return;
+        }
 
-                dayElem.classList.add("closed-day");
+        // 満席
+        if (Number(dayData.remain) <= 0) {
 
-                // 残席は表示しない
-                return;
-            }
+            dayElem.classList.add("full-day");
+        }
 
-            // 満席
-            if (Number(dayData.remain) <= 0) {
+        const remain = document.createElement("span");
 
-                dayElem.classList.add("full-day");
-            }
+        remain.className = "remain";
+        remain.textContent = `残${dayData.remain}席`;
 
-            const remain = document.createElement("span");
-
-            remain.className = "remain";
-            remain.textContent = `残${dayData.remain}席`;
-
-            dayElem.appendChild(remain);
+        dayElem.appendChild(remain);
         }
     });
 
@@ -792,6 +930,19 @@ window.onclick=e=>{
 
 /* 予約モーダル */
 
+document.getElementById("cancelBtn").addEventListener("click", function () {
+
+    document.getElementById("reservationForm").reset();
+
+    fp.clear();
+
+    reservationModal.style.display = "none";
+
+    document.querySelector(".fixed-reserve").style.display = "block";
+
+});
+
+
 const reservationModal =
 document.getElementById("reservationModal");
 
@@ -821,11 +972,6 @@ document.getElementById("reservationClose").onclick=()=>{
 
 const reservationDate =
 document.getElementById("reservationDate");
-
-
-
-
-
 
 reservationDate.addEventListener("change", function(){
 
@@ -1052,6 +1198,13 @@ formData.set(
 
 
 
+
+
+
+
+
+
+ 
 fetch(POST_URL,{
     method:"POST",
     body:formData
@@ -1080,10 +1233,112 @@ fetch(POST_URL,{
 
 });
 
+
 });   // ← submitイベント終了
 
 
 
+// ============================
+// ご予約キャンセル依頼送信
+// ============================
+
+document.addEventListener("DOMContentLoaded", function(){
+
+
+    document
+    .getElementById("sendCancel")
+    .addEventListener("click",function(){
+
+
+        const cancelData = new FormData();
+
+
+        cancelData.append(
+            "type",
+            "cancel"
+        );
+
+
+        cancelData.append(
+            "name",
+            document.getElementById("cancelName").value
+        );
+
+
+        cancelData.append(
+            "phone",
+            document.getElementById("cancelPhone").value
+        );
+
+
+        cancelData.append(
+            "email",
+            document.getElementById("cancelEmail").value
+        );
+
+
+        cancelData.append(
+            "date",
+            document.getElementById("cancelDate").value
+        );
+
+
+        console.log("キャンセル送信開始");
+
+
+        fetch(POST_URL,{
+            method:"POST",
+            body:cancelData
+        })
+
+
+        .then(res=>res.json())
+
+
+        .then(data=>{
+
+            console.log(data);
+
+
+            if(data.result==="success"){
+
+                alert(
+                "キャンセル依頼を送信しました。\n店舗からの確認連絡をお待ちください。"
+                );
+
+
+                document
+                .getElementById("cancelModal")
+                .style.display="none";
+
+
+            }else{
+
+                alert(
+                "キャンセル送信に失敗しました。\n"
+                + data.message
+                );
+
+            }
+
+        })
+
+
+        .catch(err=>{
+
+            console.error(err);
+
+            alert(
+            "通信エラーが発生しました。"
+            );
+
+        });
+
+
+    });
+
+
+});
 
 
 
@@ -1198,20 +1453,81 @@ datetimeValue;
 
 /* イベント */
 
+console.log("①");
+
+
 document.getElementById("reservationDate")
 .addEventListener("change", updateDateTimeDisplay);
+
+
+console.log("①");
+
 
 document.getElementById("startHour")
 .addEventListener("change", updateDateTimeDisplay);
 
+
+console.log("③");
+
+
 document.getElementById("endHour")
 .addEventListener("change", updateDateTimeDisplay);
+
+
+console.log("④");
+
+
+// ご予約キャンセルボタン
+document
+.getElementById("reservationCancelBtn")
+.addEventListener("click",function(){
+
+    document.getElementById("cancelModal")
+    .style.display="block";
+
+});
+
+
+// 戻る
+
+console.log("戻る処理登録開始");
+console.log(document.getElementById("closeCancelModal"));
+
+
+document
+.getElementById("closeCancelModal")
+.addEventListener("click",function(){
+
+
+    alert("戻るボタン押下");
+
+
+
+    document.getElementById("cancelModal")
+    .style.display="none";
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 
 
 </script>
+
+
+
 
 </body>
 </html>
