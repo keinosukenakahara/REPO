@@ -418,14 +418,23 @@ defer>
 <section>
 <h2>店内のご案内</h2>
 <img src="img/counter.jpg">
-<p>木の温もりに包まれたカウンターで、静かなひとときを。</p>
+<p style="font-size:30px;">
+木の温もりに包まれたカウンターで、静かなひとときを。
+</p>
 </section>
 
 <section class="info">
 <h2>店舗情報</h2>
-<p>神戸市兵庫区福原町14-1　新開地ロックビル１階</p>
-<p>19:00〜24:00（日曜定休）</p>
-<p>カウンター5席</p>
+<p style="font-size:30px;">
+新開地 福原 を地元に カウンター居酒屋・飲み屋です。
+</p>
+<p>住所：神戸市兵庫区福原町14-1 新開地ロックビル1階</p>
+<p>営業：19:00〜24:00（日曜定休）</p>
+<p>席数：カウンター8席</p>
+<p>アクセス：
+    神戸高速船 新開地駅から徒歩5分</p>
+<p>    神戸市営地下鉄 湊川駅から徒歩5分</p>
+
 
 <iframe
     src="https://www.google.com/maps?q=神戸市兵庫区福原町14-1&output=embed"
@@ -532,6 +541,14 @@ required>
     name="phone"
     placeholder="電話番号"
     required>
+
+
+<input
+    type="email"
+    name="email"
+    placeholder="メールアドレス"
+    required>
+
 
 <select name="people" required>
 
@@ -1181,10 +1198,6 @@ formData.set(
     document.querySelector("[name='people']").value
 );
 
-
-
-
-
 /* 予約日だけ上書き */
 formData.set("date", date);
 
@@ -1193,16 +1206,6 @@ formData.set(
     "people",
     document.querySelector("[name='people']").value
 );
-
-
-
-
-
-
-
-
-
-
 
  
 fetch(POST_URL,{
