@@ -466,31 +466,19 @@ defer>
 </div>
 </section>
 
+
+
 <section>
-<h2>ご予約</h2>
 
-<p class="seat-info">
-本日 残り <span id="seats">3</span>席
-</p>
+    <h2>ご予約</h2>
 
-<!-- 
-<div style="text-align:center;">
- 
-    <a href="#" onclick="openReservation()" class="reserve-btn">
-        ご予約はこちら
-    </a>
-
-
-
-    <a href="tel:09012345678" class="tel-btn">
-    📞 電話予約する
-    </a>
-
-
-</div>
- -->
+    <p class="seat-info" id="seatInfo">
+        本日 残り <span id="seats">-</span>席
+    </p>
+   
 
 </section>
+
 
 
 <div id="reservationModal" class="modal">
@@ -756,7 +744,7 @@ modal.style.display="block";
 
 
 async function loadCalendar(){
- 
+
     try{
 
         const response =
@@ -767,10 +755,98 @@ async function loadCalendar(){
 
         console.log(calendarData);
 
-// ★追加
-console.table(calendarData);
+
+        /* ==========================
+           本日の営業状態・残席表示
+        ========================== */
+
+        const today = new Date();
+
+        const yyyy =
+        today.getFullYear();
+
+        const mm =
+        String(today.getMonth() + 1)
+        .padStart(2,"0");
+
+        const dd =
+        String(today.getDate())
+        .padStart(2,"0");
+
+        const todayDate =
+        `${yyyy}-${mm}-${dd}`;
 
 
+        const todayData =
+        calendarData.find(d => {
+
+            const sheetDate =
+            new Date(d.date);
+
+            const sy =
+            sheetDate.getFullYear();
+
+            const sm =
+            String(sheetDate.getMonth() + 1)
+            .padStart(2,"0");
+
+            const sd =
+            String(sheetDate.getDate())
+            .padStart(2,"0");
+
+            const formatted =
+            `${sy}-${sm}-${sd}`;
+
+            return formatted === todayDate;
+
+        });
+
+
+        console.log("todayData", todayData);
+
+
+        const seatInfo =
+        document.getElementById("seatInfo");
+
+
+        if(seatInfo){
+
+            /* 営業情報なし */
+
+            if(!todayData){
+
+                seatInfo.textContent =
+                "本日休店日です";
+
+            }
+
+            /* 休店日 */
+
+            else if(todayData.open != "営業"){
+                seatInfo.textContent =
+                "本日休店日です";
+
+            }
+
+            /* 満席 */
+
+            else if(todayData.status == "full"){
+
+                seatInfo.textContent =
+                "本日 満席です";
+
+            }
+
+            /* 営業中・残席あり */
+
+            else{
+
+                seatInfo.innerHTML =
+                `本日 残り <span id="seats">${todayData.remain}</span>席`;
+
+            }
+
+        }
 
 
     }catch(error){
@@ -784,21 +860,39 @@ console.table(calendarData);
 }
 
 
-
 function showTodayRemain(){
+
+    const seatsElement =
+        document.getElementById("seats");
+
+    // #seats が存在しない場合は処理を終了
+    if(!seatsElement){
+
+        console.warn(
+            "showTodayRemain: #seats が見つかりません"
+        );
+
+        return;
+    }
 
     const today = new Date();
 
-    const yyyy = today.getFullYear();
+    const yyyy =
+        today.getFullYear();
 
-    const mm = String(today.getMonth()+1).padStart(2,"0");
+    const mm =
+        String(today.getMonth() + 1).padStart(2, "0");
 
-    const dd = String(today.getDate()).padStart(2,"0");
+    const dd =
+        String(today.getDate()).padStart(2, "0");
 
-    const todayStr = `${yyyy}-${mm}-${dd}`;
+    const todayStr =
+        `${yyyy}-${mm}-${dd}`;
 
     const dayData =
-    calendarData.find(d => d.date === todayStr);
+        calendarData.find(
+            d => d.date === todayStr
+        );
 
     console.log(
         "todayStr:",
@@ -809,17 +903,18 @@ function showTodayRemain(){
 
     if(dayData){
 
-        document.getElementById("seats").textContent =
-        dayData.remain;
+        seatsElement.textContent =
+            dayData.remain;
 
     }else{
 
-        document.getElementById("seats").textContent =
-        "-";
+        seatsElement.textContent =
+            "-";
 
     }
 
 }
+
 
 let fp;   // ← グローバル
 
