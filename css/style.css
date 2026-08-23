@@ -261,3 +261,23 @@ footer {
         width: calc(33.333% - 20px);
     }
 }
+
+/* =========================================
+   STEP 4-②①
+   貫からのお知らせ：全体枠
+========================================= */
+
+.notice-area {
+    margin: 24px auto 30px;
+    padding: 20px 22px;
+
+    max-width: 720px;
+
+    background: rgba(255, 255, 255, 0.96);
+
+    border: 1px solid rgba(120, 80, 40, 0.25);
+    border-radius: 12px;
+
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.08);
+}

@@ -386,11 +386,81 @@ h1 span {
     margin:0 0 20px 0;
 }
 
+#closeCanCelModal{
+    background:#666;
+    color:#fff;
+}
+
+#cancelModal .modal-content h2{
+    display:block;
+    text-align:center;
+    font-size:26px;
+    margin:0 0 20px 0;
+}
+
+/* ========================================
+   STEP 4-②：お知らせ表示
+======================================== */
+
+#notice-list {
+
+    margin-top: 8px;
+    padding: 10px 18px;
+
+    background: rgba(255,255,255,0.06);
+
+    border: 1px solid rgba(255,255,255,0.18);
+
+    border-radius: 8px;
+
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+
+}
+
+#notice-list > div {
+
+    text-align: center;
+
+}
+
+#notice-list .notice-date {
+
+    font-size: 12px;
+
+    color: rgba(255,255,255,0.65);
+
+    margin-bottom: 2px;
+
+}
+
+#notice-list .notice-title {
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    color: #fff;
+
+    margin-bottom: 4px;
+
+}
+
+#notice-list .notice-body {
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    color: rgba(255,255,255,0.9);
+
+}
+
+
+
 
 </style>
-
-</style>
-
 
 <link rel="stylesheet"
 href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -409,6 +479,13 @@ defer>
 
 <header>
 <h1>呑み処 貫</h1>
+
+<!-- 貫からのお知らせ -->
+<div id="notice-area" class="notice-area">
+<!--     <div class="notice-title">貫からのお知らせ</div>-->
+    <div id="notice-list"></div>
+</div>
+
 </header>
 
 <section>
@@ -750,10 +827,52 @@ async function loadCalendar(){
         const response =
         await fetch(API_URL);
 
-        calendarData =
+        const jsonData =
         await response.json();
 
-        console.log(calendarData);
+        calendarData =
+        jsonData.calendar;
+
+        window.noticeData =
+        jsonData.notices || [];
+
+        console.log("calendarData", calendarData);
+        console.log("noticeData", window.noticeData);
+
+        /* ==========================
+        貫からのお知らせ表示
+        ========================== */
+
+        const noticeList =
+        document.getElementById("notice-list");
+
+        if(noticeList){
+
+            noticeList.innerHTML = "";
+
+            window.noticeData.forEach(notice => {
+
+                const div =
+                document.createElement("div");
+
+                div.innerHTML = `
+                    <div class="notice-date">
+                        ${notice.date || ""}
+                    </div>
+
+                    <div class="notice-title">
+                        ${notice.title || ""}
+                    </div>
+
+                    <div class="notice-body">
+                        ${notice.body || ""}
+                    </div>
+                `;
+
+                noticeList.appendChild(div);
+
+            });
+        }
 
 
         /* ==========================
