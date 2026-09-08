@@ -1227,6 +1227,10 @@ reservationDate.addEventListener("change", function(){
 
  
     console.log("dayData", dayData);
+    console.log("開始時間 =", dayData.start);
+    console.log("終了時間 =", dayData.end);
+
+
 
     if(!dayData){
 
@@ -1261,17 +1265,35 @@ reservationDate.addEventListener("change", function(){
         return;
     }
 
-    /* 残席表示 */
+ 
+    
 
+ /*   
+    //残席表示
     document.getElementById("seats").textContent =
     dayData.remain;
 
-    /* 営業時間生成 */
+    //営業時間生成
 
     createTimeOptions(
         dayData.start,
         dayData.end
     );
+*/
+
+
+const seats = document.getElementById("seats");
+
+if (seats) {
+    seats.textContent = dayData.remain;
+}
+
+createTimeOptions(
+    dayData.start,
+    dayData.end
+);
+
+
 
 });
 
@@ -1567,6 +1589,85 @@ document.addEventListener("DOMContentLoaded", function(){
 function createTimeOptions(start, end){
 
     const startSelect =
+        document.getElementById("startHour");
+
+    const endSelect =
+        document.getElementById("endHour");
+
+    // 既存の選択肢をクリア
+    startSelect.innerHTML =
+        '<option value="">開始時間</option>';
+
+    endSelect.innerHTML =
+        '<option value="">終了時間</option>';
+
+    // スプレッドシートの値を文字列化
+    start = String(start).substring(0, 5);
+    end = String(end).substring(0, 5);
+
+    console.log("開始時間:", start);
+    console.log("終了時間:", end);
+
+    // 時・分に分解
+    const [startHour, startMinute] =
+        start.split(":").map(Number);
+
+    const [endHour, endMinute] =
+        end.split(":").map(Number);
+
+    // 開始時刻 ～ 終了時刻まで30分刻み
+    for(let h = startHour; h <= endHour; h++){
+
+        for(let m of [0, 30]){
+
+            // 開始時刻より前は除外
+            if(
+                h === startHour &&
+                m < startMinute
+            ){
+                continue;
+            }
+
+            // 終了時刻より後は除外
+            if(
+                h === endHour &&
+                m > endMinute
+            ){
+                continue;
+            }
+
+            const time =
+                `${String(h).padStart(2,"0")}:${String(m).padStart(2,"0")}`;
+
+            // 開始時間
+            const startOption =
+                document.createElement("option");
+
+            startOption.value = time;
+            startOption.textContent = time;
+
+            startSelect.appendChild(startOption);
+
+            // 終了時間
+            const endOption =
+                document.createElement("option");
+
+            endOption.value = time;
+            endOption.textContent = time;
+
+            endSelect.appendChild(endOption);
+        }
+    }
+}
+
+
+
+
+
+/* 
+function createTimeOptions(start, end){
+
+    const startSelect =
     document.getElementById("startHour");
 
     const endSelect =
@@ -1577,8 +1678,6 @@ function createTimeOptions(start, end){
 
     endSelect.innerHTML =
     '<option value="">終了時間</option>';
-
-    /* 文字列化 */
 
     start = String(start).substring(0,5);
     end = String(end).substring(0,5);
@@ -1591,8 +1690,6 @@ function createTimeOptions(start, end){
     let endHour =
     parseInt(end.split(":")[0]);
 
-    /* 24:00対策 */
-
     if(endHour === 24){
         endHour = 23;
     }
@@ -1600,8 +1697,6 @@ function createTimeOptions(start, end){
     for(let h = startHour; h <= endHour; h++){
 
         for(let m of ["00","30"]){
-
-            /* 23:30で終了 */
 
             if(h === 23 && m === "30"){
                 continue;
@@ -1631,8 +1726,7 @@ function createTimeOptions(start, end){
     }
 
 }
-
-
+*/
 
 
 
