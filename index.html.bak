@@ -3,34 +3,7 @@
 <head>
 <meta charset="UTF-8">
 
-<!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-X2NS63Z491"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-X2NS63Z491');
-</script>
-
-<meta name="google-site-verification" 
-      content="kFEHsReiUPzUCQcmT1_BSgOA1XcB9IwPzZCBTia-__w" />
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-	
-<!-- Google Analytics 4 -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-X2NS63Z491"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-X2NS63Z491');
-</script>
-
-
-	
 <meta   name="google-site-verification" 
         content="kFEHsReiUPzUCQcmT1_BSgOA1XcB9IwPzZCBTia-__w" />
 
@@ -813,17 +786,9 @@ style="border:none; margin-top:15px;">
 
 <script>
 
-//26/10/04
-//const API_URL =
-//"https://script.google.com/macros/s/AKfycbzExyJxMiW15A4s2A_Vm5nuvQwlEmZv-g1RDU_eTxFBfxlYiajNp_x795_hCbogWcY/exec";
-// 
-//const POST_URL = API_URL;
-
-
 const API_URL =
 "https://script.google.com/macros/s/AKfycbzExyJxMiW15A4s2A_Vm5nuvQwlEmZv-g1RDU_eTxFBfxlYiajNp_x795_hCbogWcY/exec";
-
-const NOTICE_URL = API_URL + "?mode=notice";
+ 
 
 const POST_URL = API_URL;
 
@@ -853,48 +818,6 @@ detail.innerHTML=d.detail+"<br><strong>"+d.price+"</strong>";
 modal.style.display="block";
 };
 });
-
-/* =====================================================
-   NOTICE専用読み込み
-   予約・残席・カレンダー処理とは完全分離
-===================================================== */
-async function loadNotice(){
-
-    try{
-
-        const response = await fetch(NOTICE_URL);
-
-        const jsonData = await response.json();
-
-        const noticeList = document.getElementById("notice-list");
-
-        if(!noticeList) return;
-
-        noticeList.innerHTML = "";
-
-        const notices = jsonData.notices || [];
-
-        notices.forEach(notice => {
-
-            const div = document.createElement("div");
-
-            div.innerHTML = `
-                <div class="notice-date">${notice.date || ""}</div>
-                <div class="notice-title">${notice.title || ""}</div>
-                <div class="notice-body">${notice.body || ""}</div>
-            `;
-
-            noticeList.appendChild(div);
-
-        });
-
-    }catch(error){
-
-        console.error("NOTICE取得失敗:", error);
-
-    }
-
-}
 
 
 async function loadCalendar(){
@@ -1114,14 +1037,7 @@ function showTodayRemain(){
 
 let fp;   // ← グローバル
 
-//26/10/04 window.addEventListener("load", async ()=>{
-
-document.addEventListener("DOMContentLoaded", async ()=>{
-
-    /* NOTICEを最優先で読み込む */
-    loadNotice();
-
-    /* ↓↓↓ 既存の予約・残席処理 ↓↓↓ */
+window.addEventListener("load", async ()=>{
 
     await loadCalendar();
   
