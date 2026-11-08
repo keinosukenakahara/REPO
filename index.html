@@ -486,6 +486,108 @@ h1 span {
 
 
 
+/* 営業日カレンダー */
+
+#business-calendar {
+    margin-top: 30px;
+    padding: 15px;
+    background: #fff;
+    border-radius: 12px;
+}
+
+#business-calendar h2 {
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.calendar-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.calendar-month {
+    text-align: center;
+}
+
+.calendar-month table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.calendar-month th,
+.calendar-month td {
+    border: 1px solid #ddd;
+    padding: 8px 2px;
+    text-align: center;
+}
+
+.calendar-month th {
+    background: #0b3d2e;
+    color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+.calendar-month .open-day {
+    background: #e3efff;
+    color: #1557a6;
+    font-weight: bold;
+}
+
+.calendar-month .closed-day {
+    background: #ffe5e5;
+    color: #bd2525;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.calendar-month .today {
+    outline: 2px solid #c8a96a;
+    outline-offset: -2px;
+}
+
+.calendar-note {
+    text-align: center;
+    font-size: 13px;
+    color: #666;
+}
+
+@media (max-width: 600px) {
+    .calendar-container {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+
 
 </style>
 
@@ -526,6 +628,33 @@ defer>
 木の温もりに包まれたカウンターで、静かなひとときを。
 </p>
 </section>
+
+
+<!-- 営業日カレンダー -->
+<div id="business-calendar">
+
+    <h2>営業日カレンダー</h2>
+
+    <div class="calendar-container">
+
+        <div id="calendar-current"></div>
+
+        <div id="calendar-next"></div>
+
+    </div>
+
+  
+    <p class="calendar-note">
+        青色：営業日 ／ 赤色：休業日・日曜定休 ／ 営業時間：19:00〜24:00
+    </p>
+
+</div>
+
+
+
+
+
+
 
 <section class="info">
 <h2>店舗情報</h2>
@@ -821,6 +950,117 @@ const POST_URL = API_URL;
 
 let calendarData = [];
 
+
+
+
+// ==================================
+// 今月・次月の営業日カレンダー
+// ==================================
+
+function renderBusinessCalendar() {
+
+    const today = new Date();
+
+    function createMonth(offset, elementId) {
+
+        const target = new Date(
+            today.getFullYear(),
+            today.getMonth() + offset,
+            1
+        );
+
+        const year = target.getFullYear();
+        const month = target.getMonth();
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+
+        let html = `
+            <div class="calendar-month">
+            <h3>${year}年 ${month + 1}月</h3>
+            <table>
+            <tr>
+                <th>日</th>
+                <th>月</th>
+                <th>火</th>
+                <th>水</th>
+                <th>木</th>
+                <th>金</th>
+                <th>土</th>
+            </tr>
+        `;
+
+        let day = 1;
+
+        for (let week = 0; week < 6; week++) {
+
+            html += "<tr>";
+
+            for (let dow = 0; dow < 7; dow++) {
+
+                if (
+                    (week === 0 && dow < firstDay) ||
+                    day > lastDate
+                ) {
+                    html += "<td></td>";
+                } else {
+
+                    const dateStr =
+                        `${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+
+                    const dayData = calendarData.find(d => {
+
+                        const date = new Date(d.date);
+
+                        const formatted =
+                            `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+
+                        return formatted === dateStr;
+                    });
+
+                    let className = "";
+
+                    if (dayData && dayData.open === "営業") {
+                        className = "open-day";
+                    } else if (dow === 0 || (dayData && dayData.open !== "営業")) {
+                        className = "closed-day";
+                    }
+
+                    if (
+                        day === today.getDate() &&
+                        month === today.getMonth() &&
+                        year === today.getFullYear()
+                    ) {
+                        className += " today";
+                    }
+
+                    html += `
+                        <td class="${className}">
+                            ${day}
+                        </td>
+                    `;
+
+                    day++;
+                }
+            }
+
+            html += "</tr>";
+
+            if (day > lastDate) break;
+        }
+
+        html += "</table></div>";
+
+        document.getElementById(elementId).innerHTML = html;
+    }
+
+    createMonth(0, "calendar-current");
+    createMonth(1, "calendar-next");
+}
+
+
+
+
 document.getElementById("seats").textContent =
 Math.floor(Math.random() * 5) + 1;
 
@@ -859,6 +1099,8 @@ async function loadCalendar(){
 
         calendarData =
         jsonData.calendar;
+
+        renderBusinessCalendar();
 
         window.noticeData =
         jsonData.notices || [];
