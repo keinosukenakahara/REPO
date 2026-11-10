@@ -618,6 +618,11 @@ defer>
 
     <h2>営業日カレンダー</h2>
 
+    <!-- 営業日カレンダー取得中メッセージ -->
+    <div id="calendar-loading">
+        営業日カレンダーデータ取得中です……
+    </div>
+
     <div class="calendar-container">
 
         <div id="calendar-current"></div>
@@ -1039,6 +1044,9 @@ function renderBusinessCalendar() {
 
     createMonth(0, "calendar-current");
     createMonth(1, "calendar-next");
+
+    // カレンダー描画完了後、取得中メッセージを消去
+    document.getElementById("calendar-loading").style.display = "none";
 }
 
 
@@ -1052,22 +1060,88 @@ const title = document.getElementById("menu-title");
 const detail = document.getElementById("menu-detail");
 
 const data = {
-food01: {title:"おばんざい",detail:"季節食材",price:"350円"},
-food02: {title:"魚料理",detail:"旬の魚",price:"680円～"},
-food03: {title:"肉料理",detail:"名産肉",price:"980円～"},
-sake: {title:"日本酒",detail:"地酒",price:"600円〜"},
-whisky: {title:"ウイスキー",detail:"海外　国産",price:"700円〜"},
-beer: {title:"瓶ビール",detail:"キリン　アサヒ　サッポロ",price:"700円"}
-};
+    food01: {title:"おばんざい",detail:"季節食材",price:"350円"},
+    food02: {title:"魚料理",detail:"旬の魚",price:"680円～"},
+    food03: {title:"肉料理",detail:"名産肉",price:"980円～"},
+    sake: {title:"日本酒",detail:"地酒",price:"600円〜"},
+    whisky: {title:"ウイスキー",detail:"海外　国産",price:"700円〜"},
+    beer: {title:"瓶ビール",detail:"キリン　アサヒ　サッポロ",price:"700円"}
+    };
 
-document.querySelectorAll(".menu-item img").forEach(img=>{
-img.onclick=()=>{
-let d=data[img.id];
-title.textContent=d.title;
-detail.innerHTML=d.detail+"<br><strong>"+d.price+"</strong>";
-modal.style.display="block";
-};
+    document.querySelectorAll(".menu-item img").forEach(img=>{
+    img.onclick=()=>{   
+    let d=data[img.id];
+    title.textContent=d.title;
+    detail.innerHTML=d.detail+"<br><strong>"+d.price+"</strong>";
+    modal.style.display="block";
+    };
 });
+
+
+
+
+// ==================================
+// 貫からのお知らせ専用・先行取得
+// ==================================
+async function loadNotice(){
+
+    const noticeList =
+    document.getElementById("notice-list");
+
+    // 取得開始前に必ず表示
+    if(noticeList){
+        noticeList.innerHTML =
+            '<div class="notice-loading">お知らせデータ取得中です……</div>';
+    }
+
+
+    try{
+
+        const response = await fetch(
+            API_URL + "?mode=notice"
+        );
+
+        const jsonData = await response.json();
+        
+        if(!noticeList) return;
+
+        noticeList.innerHTML = "";
+
+        (jsonData.notices || []).forEach(notice => {
+
+            const div = document.createElement("div");
+
+            div.innerHTML = `
+                <div class="notice-date">
+                    ${notice.date || ""}
+                </div>
+
+                <div class="notice-title">
+                    ${notice.title || ""}
+                </div>
+
+                <div class="notice-body">
+                    ${notice.body || ""}
+                </div>
+            `;
+
+            noticeList.appendChild(div);
+
+        });
+
+    }catch(error){
+
+        console.error("お知らせ取得失敗", error);
+
+        if(noticeList){
+            noticeList.innerHTML =
+            '<div class="notice-loading">お知らせを取得できませんでした。</div>';
+        }
+
+
+    }
+
+}
 
 
 async function loadCalendar(){
@@ -1084,47 +1158,7 @@ async function loadCalendar(){
         jsonData.calendar;
 
         renderBusinessCalendar();
-
-        window.noticeData =
-        jsonData.notices || [];
-
         console.log("calendarData", calendarData);
-        console.log("noticeData", window.noticeData);
-
-        /* ==========================
-        貫からのお知らせ表示
-        ========================== */
-
-        const noticeList =
-        document.getElementById("notice-list");
-
-        if(noticeList){
-
-            noticeList.innerHTML = "";
-
-            window.noticeData.forEach(notice => {
-
-                const div =
-                document.createElement("div");
-
-                div.innerHTML = `
-                    <div class="notice-date">
-                        ${notice.date || ""}
-                    </div>
-
-                    <div class="notice-title">
-                        ${notice.title || ""}
-                    </div>
-
-                    <div class="notice-body">
-                        ${notice.body || ""}
-                    </div>
-                `;
-
-                noticeList.appendChild(div);
-
-            });
-        }
 
 
         /* ==========================
@@ -1288,6 +1322,8 @@ function showTodayRemain(){
 
 
 let fp;   // ← グローバル
+
+loadNotice();   // お知らせを先行取得
 
 window.addEventListener("load", async ()=>{
 
